@@ -19,6 +19,7 @@ import (
 	"os"
 	"path"
 	"path/filepath"
+	"runtime"
 	"strings"
 	"time"
 
@@ -29,21 +30,25 @@ import (
 
 // Get or create home directory
 func GetConfigDir() (homedir string, err error) {
-	homedir, err = os.UserHomeDir()
-	if err != nil {
-		return
-	}
-
 	if envHomedir, isSet := os.LookupEnv("CROC_CONFIG_DIR"); isSet {
 		homedir = envHomedir
 	} else if xdgConfigHome, isSet := os.LookupEnv("XDG_CONFIG_HOME"); isSet {
 		homedir = path.Join(xdgConfigHome, "croc")
 	} else {
+
+		// Get home directory if not set alternatively.
+		homedir, err = os.UserHomeDir()
+		if err != nil {
+			return
+		}
+
 		homedir = path.Join(homedir, ".config", "croc")
 	}
 
-	if _, err = os.Stat(homedir); os.IsNotExist(err) {
-		err = os.MkdirAll(homedir, 0700)
+	if runtime.GOOS != "js" {
+		if _, err = os.Stat(homedir); os.IsNotExist(err) {
+			err = os.MkdirAll(homedir, 0700)
+		}
 	}
 	return
 }
@@ -60,10 +65,16 @@ func Exists(name string) bool {
 
 // GetInput returns the input with a given prompt
 func GetInput(prompt string) string {
-	reader := bufio.NewReader(os.Stdin)
-	fmt.Fprintf(os.Stderr, "%s", prompt)
-	text, _ := reader.ReadString('\n')
-	return strings.TrimSpace(text)
+	if runtime.GOOS == "js" {
+		text, _ := os.LookupEnv("CROC_PASSPHRASE")
+		return strings.TrimSpace(text)
+	} else {
+		reader := bufio.NewReader(os.Stdin)
+		fmt.Fprintf(os.Stderr, "%s", prompt)
+		text, _ := reader.ReadString('\n')
+		return strings.TrimSpace(text)
+	}
+
 }
 
 // HashFile returns the hash of a file or, in case of a symlink, the

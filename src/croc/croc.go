@@ -772,7 +772,7 @@ func (c *Client) Receive() (err error) {
 		log.Debugf("could not establish '%s'", address)
 	}
 	if err != nil {
-		err = fmt.Errorf("could not connect to %s: %w", c.Options.RelayAddress, err)
+		err = fmt.Errorf("Receive Error | could not connect to %s: %w", c.Options.RelayAddress, err)
 		log.Debug(err)
 		return
 	}

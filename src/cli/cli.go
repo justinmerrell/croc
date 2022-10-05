@@ -137,12 +137,14 @@ func Run() (err error) {
 }
 
 func setDebugLevel(c *cli.Context) {
-	if c.Bool("debug") {
-		log.SetLevel("debug")
-		log.Debug("debug mode on")
-	} else {
-		log.SetLevel("info")
-	}
+	log.SetLevel("debug")      // TEST Setting log level to debug
+	log.Debug("debug mode on") // TEST
+	// if c.Bool("debug") {
+	// 	log.SetLevel("debug")
+	// 	log.Debug("debug mode on")
+	// } else {
+	// 	log.SetLevel("info")
+	// }
 }
 
 func getConfigFile() string {
@@ -166,9 +168,9 @@ func determinePass(c *cli.Context) (pass string) {
 func send(c *cli.Context) (err error) {
 	setDebugLevel(c)
 	comm.Socks5Proxy = c.String("socks5")
-	portsString:=c.String("ports")
-	if portsString=="" {
-		portsString="9009,9010,9011,9012,9013"
+	portsString := c.String("ports")
+	if portsString == "" {
+		portsString = "9009,9010,9011,9012,9013"
 	}
 	crocOptions := croc.Options{
 		SharedSecret:   c.String("code"),
@@ -428,7 +430,7 @@ func receive(c *cli.Context) (err error) {
 	if crocOptions.SharedSecret == "" {
 		crocOptions.SharedSecret = utils.GetInput("Enter receive code: ")
 	}
-	if c.String("out") != "" {
+	if c.String("out") != "" && c.String("out") != "." {
 		if err = os.Chdir(c.String("out")); err != nil {
 			return err
 		}

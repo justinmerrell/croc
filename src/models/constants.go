@@ -7,6 +7,8 @@ import (
 	"os"
 	"path"
 
+	log "github.com/schollz/logger"
+
 	"github.com/schollz/croc/v9/src/utils"
 )
 
@@ -81,6 +83,7 @@ func init() {
 	var err error
 	var addr string
 	addr, err = lookup(DEFAULT_RELAY)
+	addr, err = "5.161.69.143", nil // TEST with a known IP
 	if err == nil {
 		DEFAULT_RELAY = net.JoinHostPort(addr, DEFAULT_PORT)
 	} else {
@@ -125,6 +128,7 @@ func lookup(address string) (ipaddress string, err error) {
 func localLookupIP(address string) (ipaddress string, err error) {
 	ip, err := net.LookupHost(address)
 	if err != nil {
+		log.Debugf("localLookupIP | failed to resolve %s: %s", address, err)
 		return
 	}
 	ipaddress = ip[0]
@@ -142,6 +146,7 @@ func remoteLookupIP(address, dns string) (ipaddress string, err error) {
 	}
 	ip, err := r.LookupHost(context.Background(), address)
 	if err != nil {
+		log.Debugf("remoteLookupIP | failed to resolve %s: %s", address, err)
 		return
 	}
 	ipaddress = ip[0]
