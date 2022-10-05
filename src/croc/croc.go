@@ -19,7 +19,7 @@ import (
 
 	"golang.org/x/time/rate"
 
-	"github.com/denisbrodbeck/machineid"
+	//"github.com/denisbrodbeck/machineid"
 	log "github.com/schollz/logger"
 	"github.com/schollz/pake/v3"
 	"github.com/schollz/peerdiscovery"
@@ -154,7 +154,7 @@ type FileInfo struct {
 type RemoteFileRequest struct {
 	CurrentFileChunkRanges    []int64
 	FilesToTransferCurrentNum int
-	MachineID                 string
+	//MachineID                 string
 }
 
 // SenderInfo lists the files to be transferred
@@ -162,11 +162,11 @@ type SenderInfo struct {
 	FilesToTransfer        []FileInfo
 	EmptyFoldersToTransfer []FileInfo
 	TotalNumberFolders     int
-	MachineID              string
-	Ask                    bool
-	SendingText            bool
-	NoCompress             bool
-	HashAlgorithm          string
+	//MachineID              string
+	Ask           bool
+	SendingText   bool
+	NoCompress    bool
+	HashAlgorithm string
 }
 
 // New establishes a new connection for transferring files between two instances.
@@ -527,10 +527,10 @@ func (c *Client) Send(filesInfo []FileInfo, emptyFoldersToTransfer []FileInfo, t
 		flags.WriteString("--pass " + c.Options.RelayPassword + " ")
 	}
 	fmt.Fprintf(os.Stderr, "Code is: %[1]s\nOn the other computer run\n\ncroc %[2]s%[1]s\n", c.Options.SharedSecret, flags.String())
-	if c.Options.Ask {
-		machid, _ := machineid.ID()
-		fmt.Fprintf(os.Stderr, "\rYour machine ID is '%s'\n", machid)
-	}
+	// if c.Options.Ask {
+	// 	machid, _ := machineid.ID()
+	// 	fmt.Fprintf(os.Stderr, "\rYour machine ID is '%s'\n", machid)
+	// }
 	// // c.spinner.Suffix = " waiting for recipient..."
 	// c.spinner.Start()
 	// create channel for quitting
@@ -1029,8 +1029,8 @@ func (c *Client) processMessageFileInfo(m message.Message) (done bool, err error
 	}
 	if !c.Options.NoPrompt || c.Options.Ask || senderInfo.Ask {
 		if c.Options.Ask || senderInfo.Ask {
-			machID, _ := machineid.ID()
-			fmt.Fprintf(os.Stderr, "\rYour machine id is '%s'.\n%s %s (%s) from '%s'? (Y/n) ", machID, action, fname, utils.ByteCountDecimal(totalSize), senderInfo.MachineID)
+			// machID, _ := machineid.ID()
+			// fmt.Fprintf(os.Stderr, "\rYour machine id is '%s'.\n%s %s (%s) from '%s'? (Y/n) ", machID, action, fname, utils.ByteCountDecimal(totalSize), senderInfo.MachineID)
 		} else {
 			if c.TotalNumberFolders > 0 {
 				fmt.Fprintf(os.Stderr, "\r%s %s and %s (%s)? (Y/n) ", action, fname, folderName, utils.ByteCountDecimal(totalSize))
@@ -1270,16 +1270,16 @@ func (c *Client) processMessage(payload []byte) (done bool, err error) {
 		c.Step3RecipientRequestFile = true
 
 		if c.Options.Ask {
-			fmt.Fprintf(os.Stderr, "Send to machine '%s'? (Y/n) ", remoteFile.MachineID)
-			choice := strings.ToLower(utils.GetInput(""))
-			if choice != "" && choice != "y" && choice != "yes" {
-				err = message.Send(c.conn[0], c.Key, message.Message{
-					Type:    message.TypeError,
-					Message: "refusing files",
-				})
-				done = true
-				return
-			}
+			// fmt.Fprintf(os.Stderr, "Send to machine '%s'? (Y/n) ", remoteFile.MachineID)
+			// choice := strings.ToLower(utils.GetInput(""))
+			// if choice != "" && choice != "y" && choice != "yes" {
+			// 	err = message.Send(c.conn[0], c.Key, message.Message{
+			// 		Type:    message.TypeError,
+			// 		Message: "refusing files",
+			// 	})
+			// 	done = true
+			// 	return
+			// }
 		}
 	case message.TypeCloseSender:
 		c.bar.Finish()
@@ -1309,16 +1309,16 @@ func (c *Client) processMessage(payload []byte) (done bool, err error) {
 func (c *Client) updateIfSenderChannelSecured() (err error) {
 	if c.Options.IsSender && c.Step1ChannelSecured && !c.Step2FileInfoTransferred {
 		var b []byte
-		machID, _ := machineid.ID()
+		// machID, _ := machineid.ID()
 		b, err = json.Marshal(SenderInfo{
 			FilesToTransfer:        c.FilesToTransfer,
 			EmptyFoldersToTransfer: c.EmptyFoldersToTransfer,
-			MachineID:              machID,
-			Ask:                    c.Options.Ask,
-			TotalNumberFolders:     c.TotalNumberFolders,
-			SendingText:            c.Options.SendingText,
-			NoCompress:             c.Options.NoCompress,
-			HashAlgorithm:          c.Options.HashAlgorithm,
+			// MachineID:              machID,
+			Ask:                c.Options.Ask,
+			TotalNumberFolders: c.TotalNumberFolders,
+			SendingText:        c.Options.SendingText,
+			NoCompress:         c.Options.NoCompress,
+			HashAlgorithm:      c.Options.HashAlgorithm,
 		})
 		if err != nil {
 			log.Error(err)
@@ -1413,11 +1413,11 @@ func (c *Client) recipientGetFileReady(finished bool) (err error) {
 
 	c.TotalSent = 0
 	c.CurrentFileIsClosed = false
-	machID, _ := machineid.ID()
+	// machID, _ := machineid.ID()
 	bRequest, _ := json.Marshal(RemoteFileRequest{
 		CurrentFileChunkRanges:    c.CurrentFileChunkRanges,
 		FilesToTransferCurrentNum: c.FilesToTransferCurrentNum,
-		MachineID:                 machID,
+		// MachineID:                 machID,
 	})
 	log.Debug("converting to chunk range")
 	c.CurrentFileChunks = utils.ChunkRangesToChunks(c.CurrentFileChunkRanges)

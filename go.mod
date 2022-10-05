@@ -4,7 +4,7 @@ go 1.17
 
 require (
 	github.com/cespare/xxhash v1.1.0
-	github.com/denisbrodbeck/machineid v1.0.1
+	// github.com/denisbrodbeck/machineid v1.0.1
 	github.com/kalafut/imohash v1.0.2
 	github.com/schollz/cli/v2 v2.2.1
 	github.com/schollz/logger v1.2.0
